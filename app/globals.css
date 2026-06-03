@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #020617; /* Default to dark background (slate-950) */
+  --foreground: #f8fafc; /* Default to light text (slate-50) */
+  --border-color: #1e293b; /* Slate-800 */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Light mode overrides */
+html.light {
+  --background: #f8fafc; /* Slate-50 */
+  --foreground: #0f172a; /* Slate-900 */
+  --border-color: #e2e8f0; /* Slate-200 */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Custom styles for light-theme compatibility where hardcoded classes exist */
+html.light .bg-slate-950 {
+  background-color: #f8fafc;
+}
+html.light .bg-slate-900 {
+  background-color: #f1f5f9;
+}
+html.light .bg-slate-900\/30 {
+  background-color: #f1f5f9/40;
+}
+html.light .bg-slate-900\/20 {
+  background-color: #f1f5f9/30;
+}
+html.light .bg-slate-900\/60 {
+  background-color: #e2e8f0;
+}
+html.light .border-slate-800 {
+  border-color: #e2e8f0;
+}
+html.light .border-slate-800\/80 {
+  border-color: #e2e8f0/80;
+}
+html.light .divide-slate-800\/60 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0/60;
+}
+html.light .text-white {
+  color: #0f172a;
+}
+html.light .text-slate-100 {
+  color: #0f172a;
+}
+html.light .text-slate-300 {
+  color: #334155;
+}
+html.light .text-slate-400 {
+  color: #475569;
+}
+html.light .bg-slate-950\/80 {
+  background-color: rgba(248, 250, 252, 0.8);
+}
+html.light .bg-slate-800 {
+  background-color: #e2e8f0;
+  color: #334155;
+}
+html.light .hover\:bg-slate-900\/20:hover {
+  background-color: rgba(226, 232, 240, 0.4);
+}
+html.light .hover\:bg-slate-900\/50:hover {
+  background-color: rgba(226, 232, 240, 0.6);
+}
+html.light .bg-slate-950 {
+  background-color: #ffffff;
+}
+html.light input, html.light select, html.light textarea {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+html.light input::placeholder, html.light textarea::placeholder {
+  color: #94a3b8;
 }

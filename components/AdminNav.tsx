@@ -4,6 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ExitIcon, CubeIcon, Component1Icon, ClipboardIcon } from "@radix-ui/react-icons";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function AdminNav() {
   const pathname = usePathname();
@@ -58,6 +59,8 @@ export function AdminNav() {
               {(session?.user as any)?.role || "ADMIN"}
             </span>
           </div>
+
+          <ThemeToggle />
 
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}

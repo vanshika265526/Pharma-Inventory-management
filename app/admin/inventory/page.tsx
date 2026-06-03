@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { formatInr } from "@/lib/format";
 import { Unit } from "@prisma/client";
-import { CheckIcon, Cross1Icon, Pencil1Icon } from "@radix-ui/react-icons";
+import { CheckIcon, Cross1Icon, Pencil2Icon } from "@radix-ui/react-icons";
 
 interface Product {
   id: string;
@@ -191,7 +191,7 @@ export default function AdminInventoryPage() {
                             onClick={() => handleStartEdit(product)}
                             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs font-semibold text-slate-400 transition hover:bg-slate-900 hover:text-white"
                           >
-                            <Pencil1Icon className="w-3.5 h-3.5" />
+                            <Pencil2Icon className="w-3.5 h-3.5" />
                             <span>Quick Adjust</span>
                           </button>
                         )}

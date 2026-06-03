@@ -89,15 +89,10 @@ export function calculateLivePrice(
   baseUnit: Unit,
   basePriceInr: number
 ): number {
-  const fromInfo = UNIT_DETAILS[selectedUnit];
-  const toInfo = UNIT_DETAILS[baseUnit];
-
-  if (fromInfo.dimension !== toInfo.dimension) {
-    return 0; // Incompatible
+  try {
+    const qtyInBase = convertQuantity(qty, selectedUnit, baseUnit);
+    return qtyInBase * basePriceInr;
+  } catch (e) {
+    return 0; // Incompatible dimensions
   }
-
-  // Convert quantity to base unit
-  const qtyInBase = qty * fromInfo.toBaseFactor;
-  // Calculate price: base quantity * base price
-  return qtyInBase * basePriceInr;
 }

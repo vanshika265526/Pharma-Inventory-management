@@ -12,6 +12,13 @@ const updateProductSchema = z.object({
   description: z.string().optional(),
   baseUnit: z.nativeEnum(Unit),
   basePriceInr: z.number().positive("Price must be greater than zero"),
+  casNumber: z.string().optional(),
+  minReorderPoint: z.number().nonnegative().optional(),
+  maxCapacity: z.number().nonnegative().optional(),
+  hazardous: z.boolean().default(false),
+  temperatureSensitive: z.boolean().default(false),
+  trackBatch: z.boolean().default(false),
+  imageUrl: z.string().optional(),
 });
 
 export async function PUT(
@@ -36,7 +43,21 @@ export async function PUT(
       );
     }
 
-    const { name, sku, category, description, baseUnit, basePriceInr } = result.data;
+    const {
+      name,
+      sku,
+      category,
+      description,
+      baseUnit,
+      basePriceInr,
+      casNumber,
+      minReorderPoint,
+      maxCapacity,
+      hazardous,
+      temperatureSensitive,
+      trackBatch,
+      imageUrl,
+    } = result.data;
 
     // Check SKU uniqueness excluding current product
     const existingProduct = await prisma.product.findFirst({
@@ -62,6 +83,13 @@ export async function PUT(
         description,
         baseUnit,
         basePriceInr,
+        casNumber,
+        minReorderPoint,
+        maxCapacity,
+        hazardous,
+        temperatureSensitive,
+        trackBatch,
+        imageUrl,
       },
     });
 

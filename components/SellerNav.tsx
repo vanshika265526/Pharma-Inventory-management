@@ -2,7 +2,8 @@
 
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { ExitIcon, PersonIcon, GearIcon } from "@radix-ui/react-icons";
+import { ExitIcon, GearIcon } from "@radix-ui/react-icons";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function SellerNav() {
   const { data: session } = useSession();
@@ -49,6 +50,8 @@ export function SellerNav() {
               {(session?.user as any)?.role || "SELLER"}
             </span>
           </div>
+
+          <ThemeToggle />
 
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}

@@ -14,6 +14,13 @@ const createProductSchema = z.object({
   baseUnit: z.nativeEnum(Unit),
   basePriceInr: z.number().positive("Price must be greater than zero"),
   initialStock: z.number().nonnegative("Stock cannot be negative").default(0),
+  casNumber: z.string().optional(),
+  minReorderPoint: z.number().nonnegative().optional(),
+  maxCapacity: z.number().nonnegative().optional(),
+  hazardous: z.boolean().default(false),
+  temperatureSensitive: z.boolean().default(false),
+  trackBatch: z.boolean().default(false),
+  imageUrl: z.string().optional(),
 });
 
 export async function GET() {
@@ -78,6 +85,13 @@ export async function POST(req: Request) {
           description,
           baseUnit,
           basePriceInr,
+          casNumber,
+          minReorderPoint,
+          maxCapacity,
+          hazardous,
+          temperatureSensitive,
+          trackBatch,
+          imageUrl,
         },
       });
 
