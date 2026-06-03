@@ -1,6 +1,6 @@
 # Aasa MedChem - Chemical Inventory & Order Management System
 
-A high-precision, role-based web application for chemical inventory tracking, dynamic unit conversions, and sales order/quotation management. Built using **Next.js 14/16 (App Router)**, **Tailwind CSS**, **shadcn/ui-inspired styling**, **NextAuth.js**, and **Prisma** with a **Neon PostgreSQL** database.
+A high-precision, role-based web application for chemical inventory tracking, dynamic unit conversions, and sales order/quotation management. Built using **Next.js 14/16 (App Router)**, **Tailwind CSS**, **NextAuth.js**, and **Prisma** with a **Neon PostgreSQL** database.
 
 ---
 
@@ -12,9 +12,9 @@ A high-precision, role-based web application for chemical inventory tracking, dy
 
 ## 🛠️ Technology Stack & Architecture
 
-- **Frontend**: Next.js App Router (React 19), Tailwind CSS, Radix Icons, state management, and custom glassmorphic aesthetics.
+- **Frontend**: Next.js App Router (React 19), Tailwind CSS, Radix Icons, state management, and custom dark/light theme toggle.
 - **Backend**: Next.js Route Handlers (API Endpoints), role-based middleware guards, and transaction-safe business logic.
-- **Database**: Neon Serverless PostgreSQL with Prisma ORM 7.
+- **Database**: Neon Serverless PostgreSQL with Prisma ORM.
 - **Authentication**: NextAuth.js (v4) with credentials provider for role-based sessions (`ADMIN` and `SELLER`).
 
 ---
@@ -48,6 +48,13 @@ erDiagram
         String description
         Unit baseUnit
         Decimal basePriceInr
+        String casNumber
+        Decimal minReorderPoint
+        Decimal maxCapacity
+        Boolean hazardous
+        Boolean temperatureSensitive
+        Boolean trackBatch
+        String imageUrl
     }
 
     Inventory {
@@ -95,13 +102,19 @@ erDiagram
 1. **Numeric Precision**:
    - Database prices and quantities use PostgreSQL **`Decimal` / `Numeric`** type.
    - High decimal precision is preserved natively without float rounding errors (perfect for micro-dosing and milligrams/milliliters tracking).
-2. **Unit Enumeration (`Unit`)**:
+2. **Chemical Specifications**:
+   - `casNumber` (CAS Registry Number) specifies the chemical's global compound identifier.
+   - `hazardous` flag identifies safety handling requirements.
+   - `temperatureSensitive` indicates cold-chain storage constraints.
+   - `trackBatch` enforces tracking of manufacture/expiry batches.
+   - `minReorderPoint` and `maxCapacity` track safety stock thresholds.
+3. **Unit Enumeration (`Unit`)**:
    - `GRAM` (g)
    - `KILOGRAM` (kg)
    - `MILLILITER` (mL)
    - `LITER` (L)
    - `UNIT` (each/items)
-3. **Role-Based Access Control (`Role`)**:
+4. **Role-Based Access Control (`Role`)**:
    - `ADMIN`: Full CRUD on products, adjust stock directly, view and approve quotations.
    - `SELLER`: Browse products, search/filter, build quotes, place quotations.
 
@@ -135,6 +148,15 @@ When a Seller orders `2 kg` of a product whose base unit is `GRAM` and base pric
    - When a quotation is submitted, the selected unit (`KILOGRAM`), quantity (`2`), and the current base price (`0.50`) are snapshotted in the `QuotationItem` table.
 4. **Stock Deduction**:
    - Upon admin approval, the quotation is converted into an order. The stock is decremented in terms of the **base unit** (subtracts `2000` from the inventory table).
+
+---
+
+## 🌗 Theme & Styling Options
+
+Aasa MedChem features a modern, responsive theme system:
+- **Default Dark Mode**: Out-of-the-box support for dark-theme operations (ideal for laboratory environments).
+- **Interactive Light Mode Toggle**: A header theme switcher stores user preferences in `localStorage` and toggles custom styled `.light` class overlays.
+- **Badges and Indicators**: Chemical rows show interactive tags (`HAZ` in red, `COLD` in cyan, and `BATCH` in amber) for special handling notes.
 
 ---
 
