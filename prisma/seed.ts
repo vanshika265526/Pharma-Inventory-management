@@ -60,8 +60,15 @@ async function main() {
       category: "API",
       description: "Active pharmaceutical ingredient - Acetylsalicylic acid powder",
       baseUnit: Unit.GRAM,
-      basePriceInr: 0.50, // 0.50 INR per gram (500 INR per kg)
-      initialStock: 50000.0, // 50,000 grams
+      basePriceInr: 0.50,
+      initialStock: 50000.0,
+      casNumber: "71-36-3",
+      minReorderPoint: 1000,
+      maxCapacity: 100000,
+      hazardous: false,
+      temperatureSensitive: false,
+      trackBatch: false,
+      imageUrl: "https://example.com/images/aspirin.jpg",
     },
     {
       name: "Ethanol 99%",

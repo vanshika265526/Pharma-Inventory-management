@@ -38,6 +38,13 @@ model Product {
   baseUnit      Unit
   basePriceInr  Decimal
   // base price stored in INR, high precision
+  casNumber     String?   // Chemical Abstracts Service number
+  minReorderPoint Decimal? // Minimum stock before reorder alert
+  maxCapacity   Decimal? // Maximum storage capacity
+  hazardous     Boolean @default(false) // Hazardous material flag
+  temperatureSensitive Boolean @default(false) // Needs temperature control
+  trackBatch    Boolean @default(false) // Batch tracking enabled
+  imageUrl      String?   // URL to product image
   inventory     Inventory?
   orderItems    OrderItem[]
   quotations    QuotationItem[]
