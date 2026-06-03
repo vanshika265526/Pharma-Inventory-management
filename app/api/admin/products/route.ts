@@ -54,7 +54,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { name, sku, category, description, baseUnit, basePriceInr, initialStock } = result.data;
+    const { name, sku, category, description, baseUnit, basePriceInr, initialStock, casNumber, minReorderPoint, maxCapacity, hazardous, temperatureSensitive, trackBatch, imageUrl } = result.data;
 
     // Check SKU uniqueness
     const existingProduct = await prisma.product.findUnique({
