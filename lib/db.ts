@@ -1,10 +1,15 @@
-import { Pool, neonConfig } from "@neondatabase/serverless";
+import { neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
-import ws from "ws";
 
 if (typeof window === "undefined") {
-  neonConfig.webSocketConstructor = ws;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const ws = require("ws");
+    neonConfig.webSocketConstructor = ws;
+  } catch {
+    // ws not available (e.g. Edge runtime) – Neon will use native WebSocket
+  }
 }
 
 const connectionString = process.env.DATABASE_URL;
