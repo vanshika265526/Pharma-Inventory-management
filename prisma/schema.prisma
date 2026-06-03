@@ -1,0 +1,93 @@
+datasource db {
+  provider = "postgresql"
+  // url      = env("DATABASE_URL")  // moved to prisma.config.ts
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Unit {
+  GRAM
+  KILOGRAM
+  LITER
+  MILLILITER
+  UNIT
+}
+
+enum Role {
+  ADMIN
+  SELLER
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String
+  role          Role    @default(SELLER)
+  orders        Order[]
+  quotations    Quotation[]
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  name          String
+  sku           String   @unique
+  category      String?
+  description   String?
+  baseUnit      Unit
+  basePriceInr  Decimal
+  // base price stored in INR, high precision
+  inventory     Inventory?
+  orderItems    OrderItem[]
+  quotations    QuotationItem[]
+}
+
+model Inventory {
+  id        String @id @default(uuid())
+  product   Product @relation(fields: [productId], references: [id])
+  productId String @unique
+  quantity  Decimal
+}
+
+model Order {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  createdAt   DateTime @default(now())
+  status      String   @default("PENDING")
+  items       OrderItem[]
+  totalInr    Decimal
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  order     Order @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Decimal
+  unit      Unit
+  priceInr  Decimal // price per unit in INR at time of order
+}
+
+model Quotation {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  createdAt    DateTime @default(now())
+  status       String   @default("PENDING")
+  items        QuotationItem[]
+  totalInr     Decimal
+}
+
+model QuotationItem {
+  id          String @id @default(uuid())
+  quotation   Quotation @relation(fields: [quotationId], references: [id])
+  quotationId String
+  product     Product @relation(fields: [productId], references: [id])
+  productId   String
+  quantity    Decimal
+  unit        Unit
+  priceInr    Decimal
+}
