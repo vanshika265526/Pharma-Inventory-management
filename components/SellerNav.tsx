@@ -2,12 +2,17 @@
 
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ExitIcon, GearIcon } from "@radix-ui/react-icons";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function SellerNav() {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const isAdmin = (session?.user as any)?.role === "ADMIN";
+
+  const activeOrderDesk = pathname === "/dashboard";
+  const activeQuotations = pathname === "/dashboard/quotations";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
@@ -25,9 +30,19 @@ export function SellerNav() {
           <nav className="flex items-center gap-4">
             <Link
               href="/dashboard"
-              className="text-xs font-semibold uppercase tracking-wider text-emerald-400 hover:text-white transition"
+              className={`text-xs font-semibold uppercase tracking-wider transition ${
+                activeOrderDesk ? "text-emerald-400" : "text-slate-400 hover:text-white"
+              }`}
             >
               Order Desk
+            </Link>
+            <Link
+              href="/dashboard/quotations"
+              className={`text-xs font-semibold uppercase tracking-wider transition ${
+                activeQuotations ? "text-emerald-400" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              My Quotations
             </Link>
             {isAdmin && (
               <Link
