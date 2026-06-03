@@ -1,27 +1,49 @@
 # Aasa MedChem - Chemical Inventory & Order Management System
 
-A high-precision, role-based web application for chemical inventory tracking, dynamic unit conversions, and sales order/quotation management. Built using **Next.js 14/16 (App Router)**, **Tailwind CSS**, **NextAuth.js**, and **Prisma** with a **Neon PostgreSQL** database.
+Aasa MedChem is a high-precision, role-based web application designed for chemical inventory tracking, dynamic unit conversions, and sales order/quotation management. The system is engineered to prevent floating-point rounding errors and safely handle high-precision dimensions (weight, volume, count) and multi-unit conversions typical in chemical and pharmaceutical commerce.
 
 ---
 
-## 🚀 Live Demo & Repository
-- **Production URL**: (TBD/Deploying on Vercel)
-- **Deployment Status**: Configured with Neon Serverless driver and ws for Edge functions.
+## 🛠️ Technology Stack & High-Level System Design
 
----
-
-## 🛠️ Technology Stack & Architecture
-
-- **Frontend**: Next.js App Router (React 19), Tailwind CSS, Radix Icons, state management, and custom dark/light theme toggle.
-- **Backend**: Next.js Route Handlers (API Endpoints), role-based middleware guards, and transaction-safe business logic.
+### Tech Stack
+- **Frontend**: Next.js App Router (React 19), Tailwind CSS (featuring custom styles for light/dark theme compatibility), and Radix Icons.
+- **Backend**: Next.js API Routes (Route Handlers) protected with NextAuth session guards.
 - **Database**: Neon Serverless PostgreSQL with Prisma ORM.
 - **Authentication**: NextAuth.js (v4) with credentials provider for role-based sessions (`ADMIN` and `SELLER`).
 
+### High-Level System Design & Component Interactions
+```
++-------------------------------------------------------------+
+|                        FRONTEND CLIENT                      |
+|  - Seller Dashboard / Order Desk (Browse, Quote Builder)    |
+|  - Admin Console (Product Catalog, Stock Adjust, Orders)    |
+|  - Theme Controller (Light/Dark Switcher via classList)     |
++------------------------------+------------------------------+
+                               |
+                   JSON API Requests / Auth Header
+                               |
+                               v
++-------------------------------------------------------------+
+|                        BACKEND ENGINE                       |
+|  - NextAuth Session Guard (Role-based Middleware)           |
+|  - API Endpoints (/api/admin/*, /api/products, etc.)        |
+|  - Business Logic & High-Precision Decimal conversions      |
++------------------------------+------------------------------+
+                               |
+                          Prisma ORM
+                               |
+                               v
++-------------------------------------------------------------+
+|                       DATABASE LAYER                        |
+|  - Neon Serverless PostgreSQL                               |
+|  - Atomic Transactions ($transaction for stock validation)  |
++-------------------------------------------------------------+
+```
+
 ---
 
-## 📊 Database Schema & Key Models
-
-The PostgreSQL schema uses standard relationships and is optimized for chemical inventory precision:
+## 📊 Database Schema & Key Tables
 
 ```mermaid
 erDiagram
@@ -34,144 +56,165 @@ erDiagram
     Quotation ||--o{ QuotationItem : details
 
     User {
-        String id PK
-        String email UNIQUE
-        String passwordHash
-        Role role
+        string id PK
+        string email
+        string passwordHash
+        string role
     }
 
     Product {
-        String id PK
-        String name
-        String sku UNIQUE
-        String category
-        String description
-        Unit baseUnit
-        Decimal basePriceInr
-        String casNumber
-        Decimal minReorderPoint
-        Decimal maxCapacity
-        Boolean hazardous
-        Boolean temperatureSensitive
-        Boolean trackBatch
-        String imageUrl
+        string id PK
+        string name
+        string sku
+        string category
+        string description
+        string baseUnit
+        decimal basePriceInr
+        string casNumber
+        decimal minReorderPoint
+        decimal maxCapacity
+        boolean hazardous
+        boolean temperatureSensitive
+        boolean trackBatch
+        string imageUrl
     }
 
     Inventory {
-        String id PK
-        String productId FK
-        Decimal quantity
+        string id PK
+        string productId FK
+        decimal quantity
     }
 
     Order {
-        String id PK
-        String userId FK
-        DateTime createdAt
-        String status
-        Decimal totalInr
+        string id PK
+        string userId FK
+        datetime createdAt
+        string status
+        decimal totalInr
     }
 
     OrderItem {
-        String id PK
-        String orderId FK
-        String productId FK
-        Decimal quantity
-        Unit unit
-        Decimal priceInr
+        string id PK
+        string orderId FK
+        string productId FK
+        decimal quantity
+        string unit
+        decimal priceInr
     }
 
     Quotation {
-        String id PK
-        String userId FK
-        DateTime createdAt
-        String status
-        Decimal totalInr
+        string id PK
+        string userId FK
+        datetime createdAt
+        string status
+        decimal totalInr
     }
 
     QuotationItem {
-        String id PK
-        String quotationId FK
-        String productId FK
-        Decimal quantity
-        Unit unit
-        Decimal priceInr
+        string id PK
+        string quotationId FK
+        string productId FK
+        decimal quantity
+        string unit
+        decimal priceInr
     }
 ```
 
-### Key Schema Decisions & Data Types
-1. **Numeric Precision**:
-   - Database prices and quantities use PostgreSQL **`Decimal` / `Numeric`** type.
-   - High decimal precision is preserved natively without float rounding errors (perfect for micro-dosing and milligrams/milliliters tracking).
-2. **Chemical Specifications**:
-   - `casNumber` (CAS Registry Number) specifies the chemical's global compound identifier.
-   - `hazardous` flag identifies safety handling requirements.
-   - `temperatureSensitive` indicates cold-chain storage constraints.
-   - `trackBatch` enforces tracking of manufacture/expiry batches.
-   - `minReorderPoint` and `maxCapacity` track safety stock thresholds.
-3. **Unit Enumeration (`Unit`)**:
-   - `GRAM` (g)
-   - `KILOGRAM` (kg)
-   - `MILLILITER` (mL)
-   - `LITER` (L)
-   - `UNIT` (each/items)
-4. **Role-Based Access Control (`Role`)**:
-   - `ADMIN`: Full CRUD on products, adjust stock directly, view and approve quotations.
-   - `SELLER`: Browse products, search/filter, build quotes, place quotations.
+The database is built on PostgreSQL with the following key models:
+
+### 1. `User` (Authentication and Role mapping)
+- **`id`** (`String`, Primary Key): UUID generated by database.
+- **`email`** (`String`, Unique): Login identifier.
+- **`passwordHash`** (`String`): Bcrypt password hash.
+- **`role`** (`Role` Enum): Default is `SELLER`. Options are `ADMIN` or `SELLER`.
+
+### 2. `Product` (Chemical Catalog & Specifications)
+- **`id`** (`String`, Primary Key): UUID.
+- **`name`** (`String`): Product/Chemical name.
+- **`sku`** (`String`, Unique): Unique product SKU code.
+- **`category`** (`String`, Optional): Product classification (e.g., Solvent).
+- **`description`** (`String`, Optional): Product specs, storage conditions.
+- **`baseUnit`** (`Unit` Enum): The fundamental inventory tracking unit (`GRAM`, `KILOGRAM`, `MILLILITER`, `LITER`, `UNIT`).
+- **`basePriceInr`** (`Decimal`): Unit price in INR mapping to base unit.
+- **`casNumber`** (`String`, Optional): Chemical Abstracts Service Registry Number.
+- **`minReorderPoint`** (`Decimal`, Optional): Minimum stock level before reorder alerts.
+- **`maxCapacity`** (`Decimal`, Optional): Maximum storage limit for the product.
+- **`hazardous`** (`Boolean`, Default `false`): Flag for safety handling.
+- **`temperatureSensitive`** (`Boolean`, Default `false`): Flag for cold-chain storage.
+- **`trackBatch`** (`Boolean`, Default `false`): Enables batch tracking.
+- **`imageUrl`** (`String`, Optional): URL to chemical images.
+
+### 3. `Inventory` (Current Physical Stock Levels)
+- **`id`** (`String`, Primary Key): UUID.
+- **`productId`** (`String`, Unique Foreign Key): Reference to the `Product`.
+- **`quantity`** (`Decimal`): Current physical stock level in terms of the product's `baseUnit`.
+
+### 4. `Order` & `OrderItem` (Approved Sales History)
+- **`Order.id`** (`String`, Primary Key): UUID.
+- **`Order.userId`** (`String`, Foreign Key): Reference to user who created it.
+- **`Order.createdAt`** (`DateTime`): Timestamp.
+- **`Order.status`** (`String`): e.g., `"PENDING"`, `"APPROVED"`.
+- **`Order.totalInr`** (`Decimal`): Order financial sum.
+- **`OrderItem`**: Tracks individual products with fields `quantity` (`Decimal`), `unit` (`Unit` Enum), and `priceInr` (`Decimal` - snapshotted price at order placement).
+
+### 5. `Quotation` & `QuotationItem` (Draft Orders & Sales Requests)
+- Mirror the structure of the Order system, allowing Sellers to construct draft lists (`QuotationItem` snapshots unit, quantity, and live rate) to submit to Admins for stock verification.
 
 ---
 
 ## ⚖️ Unit Storage & Conversion Strategy
 
 ### 1. Internal Storage Rules
-To ensure data consistency and clean mathematics, **all products are stored with a single designated `baseUnit` and `basePriceInr` in the database**:
-- If a chemical is priced per gram, its `baseUnit` is `GRAM`, and the stock quantity is stored in grams.
-- If it is priced per liter, its `baseUnit` is `LITER`, and the stock quantity is stored in liters.
+To guarantee mathematical purity and prevent inconsistencies:
+- **Single Base Unit**: Every product in the database is configured with one static `baseUnit` (e.g., `GRAM` or `MILLILITER`) and its base price refers to this unit.
+- **Stock Storage**: The physical inventory quantity is stored exclusively in terms of this `baseUnit`.
 
-### 2. Supported Dimensions & Conversion Table
-Conversions are locked within the same dimension (weight, volume, count) to prevent logical errors:
+### 2. Supported Dimensions & Conversion Factors
+Conversions are strictly validation-guarded to prevent dimensional mismatch (e.g. converting Liters to Grams).
+Factors are defined relative to the smallest unit in their dimension:
 
-| Dimension | Unit | Symbol | Base Unit | Conversion Factor (To Base) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Weight** | Gram | `g` | Gram | `1.0` |
-| **Weight** | Kilogram | `kg` | Gram | `1000.0` |
-| **Volume** | Milliliter | `mL` | Milliliter | `1.0` |
-| **Volume** | Liter | `L` | Milliliter | `1000.0` |
-| **Count** | Item/Count | `each` | Item/Count | `1.0` |
+| Dimension | Unit | Symbol | Base Factor (To Dimension Smallest Unit) |
+| :--- | :--- | :--- | :--- |
+| **Weight** | `GRAM` | g | `1.0` |
+| **Weight** | `KILOGRAM` | kg | `1000.0` |
+| **Volume** | `MILLILITER` | mL | `1.0` |
+| **Volume** | `LITER` | L | `1000.0` |
+| **Count** | `UNIT` | each | `1.0` |
 
-### 3. Price & Quantity Calculation Flow
-When a Seller orders `2 kg` of a product whose base unit is `GRAM` and base price is `₹0.50/g`:
-1. **Quantity Conversion**:
-   $$\text{Base Qty} = \text{Order Qty} \times \text{Conversion Factor} = 2 \times 1000 = 2000 \text{ g}$$
-2. **Line Total Calculation**:
-   $$\text{Line Price} = \text{Base Qty} \times \text{Base Price} = 2000 \text{ g} \times ₹0.50 = ₹1,000.00$$
-3. **Quotation & Order Snapshot**:
-   - When a quotation is submitted, the selected unit (`KILOGRAM`), quantity (`2`), and the current base price (`0.50`) are snapshotted in the `QuotationItem` table.
-4. **Stock Deduction**:
-   - Upon admin approval, the quotation is converted into an order. The stock is decremented in terms of the **base unit** (subtracts `2000` from the inventory table).
+### 3. Where and How Conversions Are Applied
+- **Before Display**: The UI lists stock levels and units in matching formats.
+- **During Rate Calculation**: Live pricing calculates dynamic costs on change using:
+  $$\text{Conversion Factor} = \frac{\text{Selected Unit Factor}}{\text{Product Base Unit Factor}}$$
+  $$\text{Quantity in Base Unit} = \text{Input Qty} \times \text{Conversion Factor}$$
+  $$\text{Live Price} = \text{Quantity in Base Unit} \times \text{Base Price}$$
+- **Before Saving (Deduction)**: When an Admin approves a quotation to convert it to an Order, the system converts the order's selected units into the product's base unit to execute the atomic inventory decrement.
 
 ---
 
-## 🌗 Theme & Styling Options
+## 💵 Price & Quantity Storage Strategy
 
-Aasa MedChem features a modern, responsive theme system:
-- **Default Dark Mode**: Out-of-the-box support for dark-theme operations (ideal for laboratory environments).
-- **Interactive Light Mode Toggle**: A header theme switcher stores user preferences in `localStorage` and toggles custom styled `.light` class overlays.
-- **Badges and Indicators**: Chemical rows show interactive tags (`HAZ` in red, `COLD` in cyan, and `BATCH` in amber) for special handling notes.
+- **Database Types**: All quantity, rate, and total prices are stored using PostgreSQL **`Decimal` / `Numeric`** precision.
+- **Floating-Point Safety**: JavaScript floating-point arithmetic (`0.1 + 0.2 === 0.30000000000000004`) is avoided for pricing. Prices are serialized as strings over HTTP APIs, and numeric conversions use either high-precision Decimal classes (via Prisma client decimals) or are converted back to formatted floats/strings only at final display boundaries.
+- **Rounding Rules**: Prices are displayed rounded to exactly **two decimal places** (`minimumFractionDigits: 2`) using the Indian Rupee locale `en-IN` via the `formatInr` utility.
+
+---
+
+## 🌗 Theme & Toggle Layout
+
+- **Default State**: Application defaults to a dark-mode palette (`bg-slate-950` base, white headings, gray subtitles).
+- **Persistent Toggle**: A `ThemeToggle` component next to the logout button modifies the `html` root class list. The state (`light` or `dark`) is persisted inside browser `localStorage`.
+- **Light Theme Compatibility**: Light-mode overrides are dynamically applied to the Tailwind layout using fallback selectors, providing a bright, clean look with dark text and light background panels without text-legibility loss.
 
 ---
 
 ## 🔐 Credentials & Access Roles
 
-The following default credentials are automatically populated by the database seed script:
+The database seed script initializes two accounts with the password `12345`:
 
-- **Admin Account**:
-  - **Email**: `vanshika80910@gmail.com`
-  - **Password**: `12345`
-  - **Permissions**: CRUD products catalog, adjust inventory directly, approve quotations.
-- **Seller Account**:
-  - **Email**: `seller@aasa.com`
-  - **Password**: `12345`
-  - **Permissions**: Browse catalog, filter items, add to cart with dynamic unit conversions, submit quotations.
+| Email | Role | Permissions |
+| :--- | :--- | :--- |
+| **vanshika80910@gmail.com** | `ADMIN` | Full CRUD on products, direct stock adjustment, approve/reject quotations. |
+| **seller@aasa.com** | `SELLER` | Browse products catalog, filter items, add to cart with conversions, place quotations. |
 
 ---
 
@@ -179,7 +222,7 @@ The following default credentials are automatically populated by the database se
 
 ### Local Development Setup
 
-1. **Clone & Open Project**:
+1. **Clone & Navigate**:
    ```bash
    cd inventory-app
    ```
@@ -187,21 +230,21 @@ The following default credentials are automatically populated by the database se
    ```bash
    npm install
    ```
-3. **Setup Environment Variables**:
-   Create a `.env` file in the root folder of the `inventory-app`:
+3. **Configure Environment Variables**:
+   Create a `.env` file in the root folder:
    ```env
    DATABASE_URL="postgresql://neondb_owner:npg_InfZ7JibxEW1@ep-shy-math-apm337ym.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require"
    NEXTAUTH_URL="http://localhost:3000"
    NEXTAUTH_SECRET="supersecretplaceholder12345"
    ```
-4. **Sync Prisma Database**:
-   Generate client and push the schema directly to Neon:
+4. **Sync Schema**:
+   Deploy the PostgreSQL schema to the Neon database:
    ```bash
    npx prisma generate
    npx prisma db push
    ```
-5. **Seed the Database**:
-   Run the TypeScript seed script:
+5. **Seed Database**:
+   Populate seed users and product entries:
    ```bash
    npx tsx prisma/seed.ts
    ```
@@ -209,22 +252,20 @@ The following default credentials are automatically populated by the database se
    ```bash
    npm run dev
    ```
-   Open `http://localhost:3000` to log in.
+   Open `http://localhost:3000` to access the application.
 
 ---
 
 ## 🚢 Vercel Deployment
 
-This project is optimized for deployment on Vercel:
-
-1. **Upload Code to GitHub**:
-   Initialize git repository, commit, and push.
-2. **Deploy on Vercel**:
-   - Link the repository on the Vercel dashboard.
-   - Configure the following Environment Variables in the project settings:
-     - `DATABASE_URL` (Neon PostgreSQL string)
-     - `NEXTAUTH_URL` (Your production Vercel deployment URL)
-     - `NEXTAUTH_SECRET` (A strong random string)
-3. **Build Settings**:
-   - Build command: `npm run build`
-   - Output directory: `.next`
+1. **Deploy to Vercel**:
+   - Install the Vercel CLI or link your repository on the Vercel Dashboard.
+2. **Configure Environment Variables**:
+   Add the following variables in Vercel Project Settings:
+   - `DATABASE_URL` (Neon PostgreSQL connection string)
+   - `NEXTAUTH_URL` (Your production Vercel deployment URL)
+   - `NEXTAUTH_SECRET` (A strong random secret)
+3. **Vercel Build Command**:
+   - Framework preset: **Next.js**
+   - Build Command: `npm run build`
+   - Output Directory: `.next`

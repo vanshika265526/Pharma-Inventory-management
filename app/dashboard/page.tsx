@@ -112,8 +112,8 @@ export default function SellerDashboardPage() {
   };
 
   const handleAddToCart = (product: Product) => {
-    const qtyVal = parseFloat(qtyInputs[product.id]);
-    const selectedUnit = unitInputs[product.id];
+    const qtyVal = parseFloat(qtyInputs[product.id] || "1");
+    const selectedUnit = unitInputs[product.id] || product.baseUnit;
 
     if (isNaN(qtyVal) || qtyVal <= 0) {
       alert("Please enter a valid quantity greater than zero.");
@@ -122,7 +122,7 @@ export default function SellerDashboardPage() {
 
     // Check if enough stock exists in base unit
     const neededBaseQty = convertQuantity(qtyVal, selectedUnit, product.baseUnit);
-    const availableStock = product.inventory?.quantity || 0;
+    const availableStock = Number(product.inventory?.quantity || 0);
 
     if (neededBaseQty > availableStock) {
       alert(`Warning: Requested quantity (${neededBaseQty} ${product.baseUnit}) exceeds available inventory (${availableStock} ${product.baseUnit}). You can still request a quotation, but admin approval depends on stock levels.`);

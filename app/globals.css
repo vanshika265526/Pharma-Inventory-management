@@ -1,83 +1,207 @@
 @import "tailwindcss";
 
 :root {
-  --background: #020617; /* Default to dark background (slate-950) */
-  --foreground: #f8fafc; /* Default to light text (slate-50) */
+  --background: #020617; /* Default to deep slate-950 */
+  --foreground: #f8fafc; /* Light slate-50 */
   --border-color: #1e293b; /* Slate-800 */
+  --card-bg: rgba(15, 23, 42, 0.4); /* Glassmorphic dark slate */
+  --card-border: rgba(30, 41, 59, 0.8);
+  --header-bg: rgba(2, 6, 23, 0.8);
+  --input-bg: #020617;
+  --accent-glow: rgba(16, 185, 129, 0.15);
 }
 
-/* Light mode overrides */
+/* Light mode overrides - Vibrant, Clean, and Premium */
 html.light {
-  --background: #f8fafc; /* Slate-50 */
-  --foreground: #0f172a; /* Slate-900 */
-  --border-color: #e2e8f0; /* Slate-200 */
+  --background: #f8fafc; /* Elegant light background with a cool blue-grey tint */
+  --foreground: #0f172a; /* Deep slate-900 */
+  --border-color: #e2e8f0; /* Soft slate-200 */
+  --card-bg: #ffffff; /* Crisp white cards - NO dull grey boxes */
+  --card-border: rgba(226, 232, 240, 0.8);
+  --header-bg: rgba(255, 255, 255, 0.85);
+  --input-bg: #ffffff;
+  --accent-glow: rgba(16, 185, 129, 0.08);
 }
 
 body {
   background-color: var(--background) !important;
   color: var(--foreground) !important;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100vh;
 }
 
-/* Custom styles for light-theme compatibility where hardcoded classes exist */
+/* Base Light Theme Overrides */
 html.light .bg-slate-950 {
-  background-color: #f8fafc;
+  background-color: var(--background) !important;
 }
+
 html.light .bg-slate-900 {
-  background-color: #f1f5f9;
+  background-color: var(--card-bg) !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
 }
-html.light .bg-slate-900\/30 {
-  background-color: #f1f5f9/40;
-}
-html.light .bg-slate-900\/20 {
-  background-color: #f1f5f9/30;
-}
+
+html.light .bg-slate-900\/20, 
+html.light .bg-slate-900\/30,
+html.light .bg-slate-900\/40,
 html.light .bg-slate-900\/60 {
-  background-color: #e2e8f0;
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.12);
 }
-html.light .border-slate-800 {
-  border-color: #e2e8f0;
+
+html.light .border-slate-800,
+html.light .border-slate-800\/80,
+html.light .border-slate-800\/40 {
+  border-color: var(--card-border) !important;
 }
-html.light .border-slate-800\/80 {
-  border-color: #e2e8f0/80;
-}
+
 html.light .divide-slate-800\/60 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #e2e8f0/60;
+  border-color: var(--border-color) !important;
 }
+
 html.light .text-white {
-  color: #0f172a;
+  color: #0f172a !important; /* Deep slate instead of white */
 }
+
 html.light .text-slate-100 {
-  color: #0f172a;
+  color: #1e293b !important;
 }
+
 html.light .text-slate-300 {
-  color: #334155;
+  color: #334155 !important; /* Slate-700 */
 }
+
 html.light .text-slate-400 {
-  color: #475569;
+  color: #64748b !important; /* Slate-500 for secondary text */
 }
+
 html.light .bg-slate-950\/80 {
-  background-color: rgba(248, 250, 252, 0.8);
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border-color);
 }
-html.light .bg-slate-800 {
-  background-color: #e2e8f0;
-  color: #334155;
+
+/* Nav links styling */
+html.light .bg-slate-900.text-emerald-400 {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+  color: #059669 !important; /* Vibrant emerald emerald-600 */
+  border-color: rgba(16, 185, 129, 0.2) !important;
 }
-html.light .hover\:bg-slate-900\/20:hover {
-  background-color: rgba(226, 232, 240, 0.4);
-}
+
 html.light .hover\:bg-slate-900\/50:hover {
-  background-color: rgba(226, 232, 240, 0.6);
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
 }
-html.light .bg-slate-950 {
-  background-color: #ffffff;
+
+/* Inputs and Forms - Crisp white surfaces with colored focus shadows */
+html.light input, 
+html.light select, 
+html.light textarea {
+  background-color: var(--input-bg) !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
 }
-html.light input, html.light select, html.light textarea {
-  background-color: #ffffff;
-  color: #0f172a;
-  border-color: #cbd5e1;
+
+html.light input:focus, 
+html.light select:focus, 
+html.light textarea:focus {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
 }
-html.light input::placeholder, html.light textarea::placeholder {
-  color: #94a3b8;
+
+html.light input::placeholder, 
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Table overrides - Avoid grey header, use subtle borders */
+html.light table thead {
+  background-color: #f1f5f9 !important; /* Clean slate background for headers */
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+
+html.light table tbody tr:hover {
+  background-color: rgba(241, 245, 249, 0.5) !important; /* Soft hover effect */
+}
+
+/* Card overrides in grids */
+html.light .group.relative.rounded-xl {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  box-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.08);
+}
+
+html.light .group.relative.rounded-xl:hover {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.12);
+}
+
+/* Cart Column & Sidebar Card */
+html.light .rounded-xl.border.border-slate-800.bg-slate-900\/30 {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 10px 30px -5px rgba(148, 163, 184, 0.12);
+}
+
+html.light .bg-slate-950\/60 {
+  background-color: #f8fafc !important; /* Clean soft background for list items */
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-slate-950\/60:hover {
+  border-color: #cbd5e1 !important;
+}
+
+/* Dynamic badges - Solid, vibrant colors instead of dark mode versions */
+html.light .bg-slate-800 {
+  background-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+html.light .bg-red-950\/50 {
+  background-color: #fee2e2 !important; /* Soft red */
+  color: #dc2626 !important; /* Vibrant red text */
+  border-color: #fca5a5 !important;
+}
+
+html.light .bg-cyan-950\/50 {
+  background-color: #ecfeff !important; /* Soft cyan */
+  color: #0891b2 !important; /* Vibrant cyan text */
+  border-color: #67e8f9 !important;
+}
+
+html.light .bg-amber-950\/50 {
+  background-color: #fef3c7 !important; /* Soft amber */
+  color: #d97706 !important; /* Vibrant amber text */
+  border-color: #fcd34d !important;
+}
+
+/* Theme switch styling override */
+html.light .bg-slate-800.rounded-full.peer-checked\:bg-emerald-500 {
+  background-color: #e2e8f0 !important;
+}
+html.light .bg-slate-800.rounded-full.peer-checked\:bg-emerald-500::after {
+  background-color: #94a3b8 !important;
+}
+html.light .peer-checked\:bg-emerald-500 {
+  background-color: #10b981 !important;
+}
+html.light .peer-checked\:bg-emerald-500::after {
+  background-color: #ffffff !important;
+}
+
+/* Scrollbar customization */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
 }
